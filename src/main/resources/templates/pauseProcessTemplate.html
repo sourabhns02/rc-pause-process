@@ -1,0 +1,123 @@
+<DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>RC Helper Engine - Inbound Files</title>
+
+<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+<link th:href="@{/css/dataTables.bootstrap4.min.css}" rel="stylesheet" />
+
+<script type="text/javascript" th:src="@{/js/jquery-3.5.1.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.dataTables.min.js}"></script>
+<script type="text/javascript"
+	th:src="@{/js/dataTables.bootstrap4.min.js}"></script>
+
+<script>
+	// Basic example
+	$(document).ready(function() {
+		$('#dtBasicExample').DataTable({
+			"pagingType" : "simple" // "simple" option for 'Previous' and 'Next' buttons only
+		});
+		$('.dataTables_length').addClass('bs-select');
+	});
+</script>
+<style>
+.text {
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.button {
+	padding-top: 20px;
+}
+.table-sm{
+ font-size: 14px;
+}
+
+</style>
+</head>
+<body>
+	<div class="container my-2">
+		<nav class="navbar navbar-inverse">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#">RC Helper Engine</a>
+				</div>
+				<ul class="nav navbar-nav">
+					<li class="active"><a th:href="@{/getPauseProcess}">RC
+							Pause Process</a></li>
+					<li class="active"><a th:href="@{/inboundFileDetails}">Inbound
+							File Details</a></li>
+				</ul>
+			</div>
+		</nav>
+
+		<div th:if="${isProcessStopped == true}">
+			<nav class="text jumbotron">
+				<h4>
+					<span
+						th:text="${statusText}"> response</span>
+				</h4>
+			</nav>
+			<div th:if="${#lists.size(listInboundFiles) > 0}">
+				<table id="dtBasicExample"
+					class="table table-striped table-bordered table-sm" cellspacing="0"
+					width="100%">
+					<thead>
+						<tr>
+							<th class="th-sm">Batch Id</th>
+							<th class="th-sm">Source File Name</th>
+							<th class="th-sm">Running Host</th>
+							<th class="th-sm">Number Of Records</th>
+							<th class="th-sm">Received Time</th>
+							<th class="th-sm">Start Time</th>
+							<th class="th-sm">Updated Time</th>
+							<th class="th-sm">Status</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="inboundFileDetails : ${listInboundFiles}">
+							<td th:text="${inboundFileDetails.batchId}"></td>
+							<td th:text="${inboundFileDetails.sourceFileName}"></td>
+							<td th:text="${inboundFileDetails.serverName}"></td>
+							<td th:text="${inboundFileDetails.numberOfRecords}"></td>
+
+							<td
+								th:text="${#calendars.format(inboundFileDetails.receivedTime, 'yyyy.MM.dd,  HH:mm:ss')}"></td>
+							<td
+								th:text="${#calendars.format(inboundFileDetails.starTime,'yyyy.MM.dd,  HH:mm:ss')}"></td>
+							<td
+								th:text="${#calendars.format(inboundFileDetails.updatedTime, 'yyyy.MM.dd,  HH:mm:ss')}"></td>
+							<td th:text="${inboundFileDetails.status}"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+		</div>
+		<div th:unless="${isProcessStopped == true}" class="text jumbotron">
+			<h3>Enter the pause time:</h3>
+			<form th:action="@{/submitPauseTime}" th:object="${recapPauseTime}"
+				method="post">
+				<table style="width: 30%">
+					<tr>
+						<td><label for="appt">Hours : </label> <input type="number"
+							class="form-control mb-2 mr-sm-2" min="0" max="24" id="hour"
+							name="hour" th:field="*{hour}"></td>
+						<td><label for="appt">Minutes : </label> <input type="number"
+							class="form-control mb-2 mr-sm-2" min="0" max="60" id="minute"
+							name="minute" th:field="*{minute}"></td>
+
+					</tr>
+					<tr>
+						<td class="button"><button type="submit"
+								class="btn btn-primary mb-2">Submit</button></td>
+					</tr>
+				</table>
+			</form>
+		</div>
+
+	</div>
+
+</body>
+</html>
