@@ -89,7 +89,7 @@ public class RecapPauseController {
 		}
 		if (seconds > 0) {
 			timeText.append(seconds);
-			timeText.append((seconds > 1) ? " seconds " : " second ");
+			timeText.append((seconds > 1) ? " seconds" : " second");
 		}
 		if (status == null) {
 			statusText.append(
