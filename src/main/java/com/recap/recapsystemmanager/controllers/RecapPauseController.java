@@ -122,7 +122,7 @@ public class RecapPauseController {
 					"The batch import process is now paused. No additional batches will be imported for the next ")
 					.append(timeText)
 					.append(fileSize > 0 ? ". The servers are currently processing " + fileSize
-							+ " batche/s. Please wait until they have finished processing before you apply database updates."
+							+ " batch/s. Please wait until they have finished processing before you apply database updates."
 							+ " We recommend refreshing this page every 15 minutes to check on batch processing status."
 							: "The servers have finished processing the existing batches, so you may proceed with the database update activity.");
 		}
