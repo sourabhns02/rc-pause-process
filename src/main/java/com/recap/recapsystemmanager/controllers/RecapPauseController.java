@@ -76,7 +76,7 @@ public class RecapPauseController {
 		Duration duration = Duration.between(LocalDateTime.now(), restartTime);
 		Long hours = TimeUnit.SECONDS.toHours(duration.getSeconds());
 		Long minutes = TimeUnit.SECONDS.toMinutes(duration.getSeconds()) % 60;
-		Long seconds = duration.toSeconds() % 60;
+		Long seconds = duration.getSeconds() % 60;
 		StringBuffer timeText = new StringBuffer();
 		StringBuffer statusText = new StringBuffer();
 		if (hours > 0) {
