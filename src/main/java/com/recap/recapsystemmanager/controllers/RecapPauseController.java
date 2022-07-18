@@ -98,7 +98,7 @@ public class RecapPauseController {
 					.append(fileSize > 0 ? ". The servers are currently processing " + fileSize
 							+ " batch/s. Please wait until they have finished processing before you apply database updates."
 							+ " We recommend refreshing this page every 15 minutes to check on batch processing status"
-							: "The servers have finished processing the existing batches, so you may proceed with the database update activity.");
+							: ". The servers have finished processing the existing batches, so you may proceed with the database update activity.");
 		} else if (status.equals(Constants.PAUSE_SUCCESS.getValue())) {
 			statusText.append(
 					"The batch import process is now paused. No additional batches will be imported for the next ")
@@ -116,7 +116,7 @@ public class RecapPauseController {
 					.append(fileSize > 0 ? ". The servers are currently processing " + fileSize
 							+ " batch/s. Please wait until they have finished processing before you apply database updates."
 							+ " We recommend refreshing this page every 15 minutes to check on batch processing status."
-							: "The servers have finished processing the existing batches, so you may proceed with the database update activity.");
+							: ". The servers have finished processing the existing batches, so you may proceed with the database update activity.");
 		} else {
 			statusText.append(
 					"The batch import process is now paused. No additional batches will be imported for the next ")
@@ -124,7 +124,7 @@ public class RecapPauseController {
 					.append(fileSize > 0 ? ". The servers are currently processing " + fileSize
 							+ " batch/s. Please wait until they have finished processing before you apply database updates."
 							+ " We recommend refreshing this page every 15 minutes to check on batch processing status."
-							: "The servers have finished processing the existing batches, so you may proceed with the database update activity.");
+							: ". The servers have finished processing the existing batches, so you may proceed with the database update activity.");
 		}
 
 		return statusText.toString();
