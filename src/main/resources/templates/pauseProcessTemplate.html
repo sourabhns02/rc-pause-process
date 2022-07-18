@@ -54,10 +54,10 @@
 
 		<div th:if="${isProcessStopped == true}">
 			<nav class="text jumbotron">
-				<h4>
+				<h5>
 					<span
 						th:text="${statusText}"> response</span>
-				</h4>
+				</h5>
 			</nav>
 			<div th:if="${#lists.size(listInboundFiles) > 0}">
 				<table id="dtBasicExample"

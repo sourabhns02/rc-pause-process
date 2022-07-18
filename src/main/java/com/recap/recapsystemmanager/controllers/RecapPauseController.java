@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.recap.recapsystemmanager.dto.Constants;
 import com.recap.recapsystemmanager.dto.RecapPauseTime;
+import com.recap.recapsystemmanager.dto.ServerStatusConstants;
 import com.recap.recapsystemmanager.model.InboundFileDetails;
 import com.recap.recapsystemmanager.model.Process_details;
 import com.recap.recapsystemmanager.services.InboundFileDetailsService;
@@ -43,7 +44,9 @@ public class RecapPauseController {
 			@ModelAttribute("recapPauseTime") RecapPauseTime pauseTime, Model model) {
 		Process_details pd = recapPauseService.getLatestProcessDetails();
 		String statusText = "";
-		if (status != null) {
+		if (status != null && status.equals(Constants.PAUSE_SUCCESS.getValue())
+				&& pd.getStatus() == ServerStatusConstants.SERVER_PAUSE.getValue()
+				&& LocalDateTime.now().isBefore(pd.getPause_end_time().toLocalDateTime())) {
 			model.addAttribute("isProcessStopped", true);
 			List<InboundFileDetails> listInboundFiles = inboundFileDetailsService.getRunningInboundFileDetails();
 			logger.info("getPauseProcess : Number of inbound file running : {}", listInboundFiles.size());
@@ -51,7 +54,8 @@ public class RecapPauseController {
 			statusText = getResponseMsg(status, pd.getPause_end_time().toLocalDateTime(), listInboundFiles.size());
 		}
 
-		else if (pd.getStatus().toString().equals(Constants.PROCESSING.getValue())) {
+		else if ( pd.getStatus() == ServerStatusConstants.SERVER_PAUSE.getValue()
+				&& LocalDateTime.now().isBefore(pd.getPause_end_time().toLocalDateTime())) {
 			model.addAttribute("isProcessStopped", true);
 			List<InboundFileDetails> listInboundFiles = inboundFileDetailsService.getRunningInboundFileDetails();
 			logger.info("getPauseProcess : Number of inbound file running : {}", listInboundFiles.size());
@@ -70,8 +74,8 @@ public class RecapPauseController {
 
 	private String getResponseMsg(String status, LocalDateTime restartTime, int fileSize) {
 		Duration duration = Duration.between(LocalDateTime.now(), restartTime);
-		Long hours = TimeUnit.SECONDS.toHours(duration.toSeconds());
-		Long minutes = TimeUnit.SECONDS.toMinutes(duration.toSeconds()) % 60;
+		Long hours = TimeUnit.SECONDS.toHours(duration.getSeconds());
+		Long minutes = TimeUnit.SECONDS.toMinutes(duration.getSeconds()) % 60;
 		Long seconds = duration.toSeconds() % 60;
 		StringBuffer timeText = new StringBuffer();
 		StringBuffer statusText = new StringBuffer();
@@ -88,23 +92,39 @@ public class RecapPauseController {
 			timeText.append((seconds > 1) ? " seconds " : " second ");
 		}
 		if (status == null) {
-			statusText.append("Currently the application has been paused, will restart within ").append(timeText)
-					.append("and currently ").append(fileSize)
-					.append(" files are being processing, once the process is complete, you will initiate server update activity.");
+			statusText.append(
+					"The batch import process is already paused. No additional batches will be imported for the next ")
+					.append(timeText)
+					.append(fileSize > 0 ? ". The servers are currently processing " + fileSize
+							+ " batch/s. Please wait until they have finished processing before you apply database updates."
+							+ " We recommend refreshing this page every 15 minutes to check on batch processing status"
+							: "The servers have finished processing the existing batches, so you may proceed with the database update activity.");
 		} else if (status.equals(Constants.PAUSE_SUCCESS.getValue())) {
-			statusText.append("Application has been paused successfully, will restart within ").append(timeText)
-					.append("and currently ").append(fileSize)
-					.append(" files are being processing, once the process is complete, you will initiate server update activity.");
+			statusText.append(
+					"The batch import process is now paused. No additional batches will be imported for the next ")
+					.append(timeText)
+					.append(fileSize > 0 ? ". The servers are currently processing " + fileSize
+							+ " batch/s. Please wait until they have finished processing before you apply database updates."
+							+ " We recommend refreshing this page every 15 minutes to check on batch processing status."
+							: ". The servers have finished processing the existing batches, so you may proceed with the database update activity.");
 		} else if (status.equals(Constants.PAUSE_FAILED.getValue())) {
 			statusText.append("Failed to pause application. Please try again");
 		} else if (status.equals(Constants.PAUSED_ALREADY.getValue())) {
-			statusText.append("Application has been paused already, will restart within ").append(timeText)
-					.append("and currently ").append(fileSize)
-					.append(" files are being processing, once the process is complete, you will initiate server update activity.");
+			statusText.append(
+					"The batch import process is already paused. No additional batches will be imported for the next ")
+					.append(timeText)
+					.append(fileSize > 0 ? ". The servers are currently processing " + fileSize
+							+ " batch/s. Please wait until they have finished processing before you apply database updates."
+							+ " We recommend refreshing this page every 15 minutes to check on batch processing status."
+							: "The servers have finished processing the existing batches, so you may proceed with the database update activity.");
 		} else {
-			statusText.append("Currently the application has been paused, will restart within ").append(timeText)
-					.append("and currently ").append(fileSize)
-					.append(" files are being processing, once the process is complete, you will initiate server update activity.");
+			statusText.append(
+					"The batch import process is now paused. No additional batches will be imported for the next ")
+					.append(timeText)
+					.append(fileSize > 0 ? ". The servers are currently processing " + fileSize
+							+ " batche/s. Please wait until they have finished processing before you apply database updates."
+							+ " We recommend refreshing this page every 15 minutes to check on batch processing status."
+							: "The servers have finished processing the existing batches, so you may proceed with the database update activity.");
 		}
 
 		return statusText.toString();
@@ -113,6 +133,10 @@ public class RecapPauseController {
 	@PostMapping("/submitPauseTime")
 	public String submitPauseTime(@ModelAttribute("recapPauseTime") RecapPauseTime time, Model model) {
 		logger.info("Selected pause hour : {}, minute : {},", time.getHour(), time.getMinute());
+		if (time.getHour() == null)
+			time.setHour(0);
+		if (time.getMinute() == null)
+			time.setMinute(0);
 		String resp = recapPauseService.pauseRecapProcess(time);
 		return "redirect:/getPauseProcess?status=" + resp;
 	}
