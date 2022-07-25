@@ -27,9 +27,7 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
 		// authentication manager (see below)
-		auth.ldapAuthentication().userDnPatterns("CN=ldapadmin,OU=Utility Accounts,DC=infores,DC=com")
-		.userSearchBase("(&(objectCategory=user)(sAMAccountName={0}))")
-		.groupSearchSubtree(true)
+		auth.ldapAuthentication().userSearchFilter("(&(objectclass=user)(samaccountname={0}))")
         .contextSource()
         .url("ldap://crpdcw201p.infores.com:3268/DC=infores,DC=com")
         .managerDn("ldapadmin")
@@ -46,11 +44,6 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
 //				.withUser("admin").password(passwordEncoder().encode("123")).roles("ADMIN");
 //	}
 	
-//	@Override
-//	protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-//		// authentication manager (see below)
-//		auth.jdbcAuthentication()
-//	}
 
 	@Override
 	protected void configure(final HttpSecurity http) throws Exception {
@@ -64,8 +57,7 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
         .and()  
         .formLogin()  
         .loginPage("/login")
-        .defaultSuccessUrl("/getPauseProcess")
-        .failureUrl("/login-error.html").permitAll();
+        .defaultSuccessUrl("/getPauseProcess").permitAll();
 
 	}
 
