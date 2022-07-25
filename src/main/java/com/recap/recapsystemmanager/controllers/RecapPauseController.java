@@ -18,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.recap.recapsystemmanager.dto.Constants;
@@ -39,7 +40,7 @@ public class RecapPauseController {
 	@Autowired
 	InboundFileDetailsService inboundFileDetailsService;
 
-	@GetMapping("/getPauseProcess")
+	@GetMapping(value = {"/getPauseProcess", "/"})
 	public String getPauseProcess(@RequestParam(name = "status", required = false) String status,
 			@ModelAttribute("recapPauseTime") RecapPauseTime pauseTime, Model model) {
 		Process_details pd = recapPauseService.getLatestProcessDetails();
@@ -149,4 +150,16 @@ public class RecapPauseController {
 		return "inbound_files";
 	}
 
+	@GetMapping("/login")  
+    public String login() {  
+		logger.info("login page");
+        return "login";  
+    } 
+	
+	@RequestMapping("/login-error.html")  
+    public String loginError(Model model) {  
+        model.addAttribute("loginError", true); 
+        logger.error("error occured in login");
+        return "login.html";  
+    } 
 }
