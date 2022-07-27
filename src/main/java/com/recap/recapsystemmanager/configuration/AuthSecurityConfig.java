@@ -3,6 +3,7 @@ package com.recap.recapsystemmanager.configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -23,27 +24,33 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	private static Logger logger = LoggerFactory.getLogger(AuthSecurityConfig.class);
+	
+	@Value("${iri.corp.ldap.username}")
+	private String ldapUsername;
+	
+	@Value("${iri.corp.ldap.password}")
+	private String ldapUserPassword;
+	
+	@Value("${iri.corp.ldap.url}")
+	private String ldapUrl;
+	
+	@Value("${iri.corp.ldap.base}")
+	private String ldapBase;
+	
+	@Value("${iri.corp.ldap.userFilter}")
+	private String userFilter;
 
 	@Override
 	protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
 		// authentication manager (see below)
-		auth.ldapAuthentication().userSearchFilter("(&(objectclass=user)(samaccountname={0}))")
-        .contextSource()
-        .url("ldap://crpdcw201p.infores.com:3268/DC=infores,DC=com")
-        .managerDn("ldapadmin")
-        .managerPassword("LD@P:adm1n");
-        
-        logger.info("test "+auth.toString());
-	}
-	
-//	@Override
-//	protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-//		// authentication manager (see below)
-//		auth.inMemoryAuthentication().withUser("user1").password(passwordEncoder().encode("user1Pass")).roles("USER")
-//				.and().withUser("user2").password(passwordEncoder().encode("user2Pass")).roles("USER").and()
-//				.withUser("admin").password(passwordEncoder().encode("123")).roles("ADMIN");
-//	}
-	
+		auth.ldapAuthentication()
+		.contextSource()
+        .url(ldapUrl + ldapBase)
+        .managerDn(ldapUsername)
+        .managerPassword(ldapUserPassword)
+        .and()
+        .userSearchFilter(userFilter);
+	}	
 
 	@Override
 	protected void configure(final HttpSecurity http) throws Exception {
@@ -56,8 +63,11 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
         .anyRequest().authenticated()  
         .and()  
         .formLogin()  
-        .loginPage("/login")
-        .defaultSuccessUrl("/getPauseProcess").permitAll();
+        .defaultSuccessUrl("/getPauseProcess").permitAll()
+        .and()
+        .logout()
+        .invalidateHttpSession(true)
+        .deleteCookies("JSESSIONID");
 
 	}
 
